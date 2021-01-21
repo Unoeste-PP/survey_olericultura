@@ -1,0 +1,113 @@
+---
+title: "olericultura"
+author: "Maxwel Coura Oliveira"
+date: "1/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r message = FALSE, warning = FALSE}
+data <- read_csv("data.csv", skip = 0) 
+
+data1 = data[c(-2, -1),]
+```
+
+```{r}
+data2 <- data1 %>% 
+  janitor::clean_names() %>% 
+  select(-start_date:-external_reference) %>% 
+  select(-distribution_channel, -user_language) %>%
+  unite(q6, c("q6", "q6_4_text"), sep = "", na.rm = TRUE) %>% 
+  unite(q16, c("q16", "q16_5_text"), sep = "", na.rm = TRUE) %>% 
+  unite(q11, c("q11_1", "q11_2", "q11_3", "q11_4", "q11_5"), 
+        sep = "-", na.rm = TRUE) %>% 
+  pivot_longer(3:104, names_to = "question", values_to = "answer") %>% 
+  arrange(question) 
+```
+
+
+# Ocupação
+
+```{r}
+data2 %>% 
+  filter(question == "q6") %>% 
+  mutate(answer = str_replace(answer, "Outro", "")) %>% 
+  count(answer) %>% 
+  add_tally(sum(n)) %>% 
+  mutate(perc = round(n / nn * 100, 0)) %>% 
+  arrange(desc(perc))
+```
+
+Em qual região do Brasil está localizada a sua propriedade/território?
+
+```{r}
+data2 %>% 
+  filter(question == "q18") %>% 
+  count(answer) %>% 
+  add_tally(n) %>% 
+  mutate(perc = round(n / nn * 100, 0)) %>% 
+  arrange(desc(perc))
+```
+
+Qual tamanho da área (hectares) manejada com as seguintes culturas olerícolas em sua propriedade?
+
+```{r}
+data2 %>% 
+  filter(question == "q10_1")
+```
+
+Qual a época de plantio das culturas olerícolas?
+
+```{r}
+data2 %>% 
+  filter(question == "q28") %>% 
+  count(answer) %>% 
+  add_tally(n) %>% 
+  mutate(perc = round(n / nn * 100, 0))
+```
+
+Qual a percentagem de cultivo de olerícolas irrigado em sua propriedade/território?
+
+```{r}
+data2 %>% 
+  filter(question == "q15_1") %>% 
+  mutate(answer = as.integer(answer)) %>% 
+  summarise(mean_irrigation = mean(answer, na.rm = TRUE))
+```
+
+Qual tipo de irrigação usado? Selecione todas que se aplica
+
+```{r}
+data2 %>% 
+  filter(question == "q16") %>% 
+  mutate(answer = str_replace(answer, "Outro", "")) %>%
+  count(answer) %>% 
+  add_tally(n) %>% 
+  mutate(perc = round(n / nn * 100, 0)) %>% 
+  arrange(desc(perc))
+```
+
+Coloque em ordem o principal método de controle de plantas daninhas sua área de MIPD
+
+```{r}
+data2 %>% 
+  filter(question == "q11") %>% 
+  count(answer)
+```
+
+Em uma escala de 0 (péssimo) e 100 (ótimo), qual o nível de controle de plantas daninhas 
+
+```{r}
+data2 %>% 
+  filter(question == "q22_1") %>% 
+  mutate(answer = as.double(answer)) %>% 
+  summarise(mean_wc = round(mean(answer, na.rm = TRUE, 0)))
+```
+
