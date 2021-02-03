@@ -20,6 +20,12 @@ data1 = data[c(-2, -1),]
 ```
 
 ```{r}
+data1 %>% 
+  filter(Q6 == "Produtor rural / Dono da propriedade")
+```
+
+
+```{r}
 data2 <- data1 %>% 
   janitor::clean_names() %>% 
   select(-start_date:-external_reference) %>% 
